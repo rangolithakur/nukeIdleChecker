@@ -1,0 +1,30 @@
+""" This module checks for hash value of a node to validate if any nodes are updated or nuke is idle"""
+import nuke
+import hashlib
+import time
+import sys
+
+# Function to calculate hash value of a node
+def calculate_hash(node):
+    hash_object = hashlib.md5()
+    hash_object.update(str(node).encode())
+    return hash_object.hexdigest()
+
+# Function to check for changes in node hash values
+def check_node_changes():
+    while True:
+        for node in nuke.allNodes():
+            current_hash = calculate_hash(node)
+            if current_hash != node['hash'].value():
+                print("Node '{}' has been updated. Closing Nuke...".format(node.name()))
+                nuke.scriptExit()  # Close Nuke
+                return
+        time.sleep(1)  # Check every 1 second
+
+# Main function
+def main():
+    print("Starting Nuke Idle Checker...")
+    check_node_changes()
+
+if __name__ == "__main__":
+    main()
